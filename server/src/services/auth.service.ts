@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-// import { User } from "../models/User"; // Assuming a Mongoose or Prisma model
+// import type { User } from "../models/users/userSchema.js"; 
 
 export class AuthService {
   private static readonly SALT_ROUNDS = 10;
