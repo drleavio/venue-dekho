@@ -46,6 +46,7 @@ export class AuthService {
 
   static async handleSocialSignup(provider: string, profile: any) {
     let user = await UserModel.findOne({ email: profile.email });
+    console.log(user,"google");
     
     if (!user) {
         user = await UserModel.create({
@@ -53,6 +54,7 @@ export class AuthService {
             email: profile.email,
             name: profile.name,
             role: "user",
+            provider
         });
     }
 
