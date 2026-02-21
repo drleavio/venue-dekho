@@ -1,34 +1,65 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-// import type { User } from "../models/users/userSchema.js"; 
+import { UserModel, type User } from "../interfaces/user-types.js"; 
+
 
 export class AuthService {
   private static readonly SALT_ROUNDS = 10;
-  private static readonly JWT_SECRET = process.env.JWT_SECRET || "your_super_secret_key";
+  private static readonly JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
 
-  
-  static async createUser(userData: any) {
-    const { email, password, name } = userData;
+  static async createUser(userData: User) {
+    const { email, password, name, age, role, username,provider } = userData;
 
-    
-    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
+    const existingUser = await UserModel.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+        throw new Error("User with this email or username already exists");
+    }
 
-    
-    const token = this.generateToken({ email, name });
+    // ✅ FIX: Only hash if password exists (for Local Signup)
+    let hashedPassword;
+    if (password) {
+        hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
+    }
 
-    return { user: { email, name }, token };
+    const user = await UserModel.create({
+      username,
+      email,
+      password: hashedPassword, // Will be undefined for social, which is fine now
+      name,
+      age,
+      role,
+      provider
+    });
+
+    const token = this.generateToken({ id: user._id, email: user.email });
+
+    return { 
+      user: { 
+        id: user._id,
+        username: user.username,
+        email: user.email, 
+        name: user.name 
+      }, 
+      token 
+    };
   }
 
- 
   static async handleSocialSignup(provider: string, profile: any) {
-    // 1. Find or Create user based on provider ID (e.g., googleId or appleId)
-    // 2. If new, create record without a password (since it's OAuth)
-    // 3. Return user data and a fresh JWT
-    const token = this.generateToken({ email: profile.email, id: profile.id });
-    return { user: profile, token };
+    let user = await UserModel.findOne({ email: profile.email });
+    
+    if (!user) {
+        user = await UserModel.create({
+            username: profile.email.split('@')[0], 
+            email: profile.email,
+            name: profile.name,
+            role: "user",
+        });
+    }
+
+    const token = this.generateToken({ id: user._id, email: user.email });
+    return { user, token };
   }
 
- 
   private static generateToken(payload: object): string {
     return jwt.sign(payload, this.JWT_SECRET, { expiresIn: "1d" });
   }

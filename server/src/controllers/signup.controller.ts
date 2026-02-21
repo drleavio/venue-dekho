@@ -1,23 +1,44 @@
 import type { Request, Response } from "express";
 import { AuthService } from "../services/auth.service.js";
-import bcrypt from "bcrypt";
+import { UserSchema } from "../interfaces/user-types.js";
+import { dbConnect } from "./db.connect.js";
 
 export const SignupController = {
   
   signUp: async (req: Request, res: Response) => {
     try {
-      const { email, password, name } = req.body;
+      const { email, password, name,age,role,username,provider } = req.body;
+      const validation = UserSchema.safeParse({ 
+        email, 
+        password, 
+        name, 
+        age, 
+        role, 
+        username,
+        provider
+      });
+      
+      if (!validation.success) {
+        return res.status(400).json({
+          message: "Validation failed",
+          errors: validation.error 
+        });
+      }
 
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
       }
 
-      // 1. Check if user exists
-      // 2. Hash password: const hashedPassword = await bcrypt.hash(password, 10);
-      // 3. Save to DB
+      const result = await AuthService.createUser(validation.data)
+      console.log(result,"result");
       
-      return res.status(201).json({ message: "User created successfully" });
+      return res.status(201).json({ 
+        message: "User created successfully", 
+        ...result 
+      }); 
     } catch (error) {
+      console.log(error,"error");
+      
       return res.status(500).json({ message: "Internal server error", error });
     }
   },

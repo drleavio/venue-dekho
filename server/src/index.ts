@@ -1,5 +1,13 @@
 import express, { type Request, type Response } from "express"
 import router from "./routes/auth/auth.route.js";
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config();
+import { dbConnect } from "./controllers/db.connect.js";
+
+
+
+const port = process.env.PORT || 3000;
 
 
 const app=express();
@@ -12,7 +20,8 @@ app.get("/",async(req:Request,res:Response)=>{
 })
 
 
-app.listen(3000,()=>{
-    console.log("running at port 3000");
+app.listen(port,async()=>{
+    await dbConnect()
+    console.log(`running at port ${port}`);
     
 })
