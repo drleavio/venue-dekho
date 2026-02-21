@@ -6,7 +6,8 @@ const router=Router();
 
 router.post("/login",LoginController.login);
 router.post("/signup",SignupController.signUp)
-router.post("/signup/google",SignupController.signUpWithGoogle)
+router.post("/google",SignupController.signUpWithGoogle)
+router.get("/google/callback", SignupController.googleCallback);
 router.post("/signup/apple",SignupController.signUpWithApple)
 
 export default router
