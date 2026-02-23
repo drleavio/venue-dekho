@@ -39,6 +39,12 @@ export const venueZodSchema = z.object({
   }),
   rating: z.number().min(0).max(5).default(0),
   isActive: z.boolean().default(true),
+  analytics: z.object({
+    totalViews: z.number().default(0),
+    totalBookings: z.number().default(0),
+    wishlistCount: z.number().default(0),
+  }),
+  featured: z.boolean().default(false),
 });
 
 
@@ -85,7 +91,12 @@ const venueMongooseSchema = new Schema<IVenue>({
     outsideCatering: { type: Boolean, default: false }
   },
   rating: { type: Number, default: 0 },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  analytics: {
+    totalViews: { type: Number, default: 0 },
+    totalBookings: { type: Number, default: 0 },
+    wishlistCount: { type: Number, default: 0 }
+  },
 }, { timestamps: true });
 
 export const VenueModel = model<IVenue>('Venue', venueMongooseSchema);
