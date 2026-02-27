@@ -6,5 +6,7 @@ const router=Router();
 
 
 router.get("/analysis",ClientMiddleware,ClientAnalysis.getDashboard)
+router.post("/api/add",ClientMiddleware,ClientAnalysis.addVenue)
+router.put("/api/update-details",ClientMiddleware,ClientAnalysis.updateVenue)
 
 export default router
