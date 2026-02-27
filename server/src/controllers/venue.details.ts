@@ -65,8 +65,7 @@ export const SendVenueDetails = {
 
     venueById:async(req:Request,res:Response)=>{
         try {
-            const {id}=req.params
-
+        const {id}=req.params
         const response=await VenueModel.findById(id);
         return res.status(200).json({
             success:true,
@@ -74,7 +73,7 @@ export const SendVenueDetails = {
         })
         } catch (error) {
             console.error("Error fetching venues:", error);
-            return res.status(500).json({ message: "Internal Server Error" });
+            return res.status(500).json({success:false, message: "Internal Server Error" });
         }
     },
 }

@@ -31,7 +31,7 @@ export class AuthService {
       provider
     });
 
-    const token = this.generateToken({ id: user._id, email: user.email });
+    const token = this.generateToken({ id: user._id, email: user.email,role :user.role});
 
     return { 
       user: { 
@@ -58,7 +58,7 @@ export class AuthService {
         });
     }
 
-    const token = this.generateToken({ id: user._id, email: user.email });
+    const token = this.generateToken({ id: user._id, email: user.email,role:user.role });
     return { user, token };
   }
 
