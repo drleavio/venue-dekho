@@ -6,7 +6,7 @@ import { BookingModel } from "../interfaces/booking-types.js";
 export const createBooking = async (req: Request, res: Response) => {
     try {
         const { id: venueId } = req.params;
-        const { date, guests, paymentMethod } = req.body; // Expecting these in body for a POST
+        const { date, guests, paymentMethod } = req.body;
         const userId = (req as any).user.id;
 
         if (!date || !guests || !paymentMethod) {
@@ -36,7 +36,7 @@ export const createBooking = async (req: Request, res: Response) => {
             totalAmount: totalAmount,
             paymentMethod: paymentMethod,
             paymentStatus: paymentMethod === 'Online' ? 'Paid' : 'Unpaid',
-            bookingStatus: 'Pending'
+            bookingStatus: paymentMethod==='Online'? 'Confirmed':'Pending'
         });
 
         await VenueModel.findByIdAndUpdate(venueId, {
