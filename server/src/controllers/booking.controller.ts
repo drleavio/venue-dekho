@@ -26,6 +26,9 @@ export const createBooking = async (req: Request, res: Response) => {
         }
 
         const totalAmount =venue.pricing?.minFee || venue.pricing.baseRentalFee || (venue.pricing.foodPricing.vegPerPlate * guests);
+        
+        //add payment gateway to receive the payment
+        const paymentId=""
 
         const newBooking = await BookingModel.create({
             venueId: venue._id,
@@ -36,7 +39,8 @@ export const createBooking = async (req: Request, res: Response) => {
             totalAmount: totalAmount,
             paymentMethod: paymentMethod,
             paymentStatus: paymentMethod === 'Online' ? 'Paid' : 'Unpaid',
-            bookingStatus: paymentMethod==='Online'? 'Confirmed':'Pending'
+            bookingStatus: paymentMethod==='Online'? 'Confirmed':'Pending',
+            transactionId:paymentMethod==='Online'?paymentId:''
         });
 
         await VenueModel.findByIdAndUpdate(venueId, {
@@ -60,8 +64,8 @@ export const createBooking = async (req: Request, res: Response) => {
             data: newBooking
         });
 
-    } catch (error) {
-        console.error("Booking Error:", error);
-        return res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
+      } catch (error) {
+          console.error("Booking Error:", error);
+          return res.status(500).json({ success: false, message: "Internal Server Error" });
+      }
 };
