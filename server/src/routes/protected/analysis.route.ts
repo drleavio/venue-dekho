@@ -10,6 +10,6 @@ const router=Router();
 router.get("/analysis",ClientMiddleware,ClientAnalysis.getDashboard)
 router.post("/add",ClientMiddleware,ClientAnalysis.addVenue)
 router.put("/update-details/:id",ClientMiddleware,ClientAnalysis.updateVenue)
-router.post("/book",middleware,createBooking)
+router.post("/book/:id",middleware,createBooking)
 
 export default router

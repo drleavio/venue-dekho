@@ -22,6 +22,7 @@ export const venueZodSchema = z.object({
     max: z.number(),
   }),
   pricing: z.object({
+    minFee:z.number().optional(),
     baseRentalFee: z.number().optional(),
     foodPricing: z.object({
       isMenuAdjustable: z.boolean().default(true),
@@ -75,6 +76,10 @@ const venueMongooseSchema = new Schema<IVenue>({
     max: { type: Number, required: true }
   },
   pricing: {
+    minFee:{
+      type:Number,
+      default:5000
+    },
     baseRentalFee: { type: Number },
     foodPricing: {
       isMenuAdjustable: { type: Boolean, default: true },

@@ -12,6 +12,8 @@ export const bookingZodSchema = z.object({
     advancePaid: z.number().default(0),
     guestCount: z.number(),
     specialRequests: z.string().optional(),
+    paymentMethod:z.enum(['Cash', 'Online']),
+    transactionId:z.string()
   });
   
   export interface IBooking extends Document {
@@ -24,6 +26,8 @@ export const bookingZodSchema = z.object({
     totalAmount: number;
     advancePaid: number;
     guestCount: number;
+    paymentMethod:string;
+    transactionId:string;
   }
   
   const bookingSchema = new Schema<IBooking>({
@@ -35,7 +39,17 @@ export const bookingZodSchema = z.object({
     paymentStatus: { type: String, enum: ['Unpaid', 'Partially Paid', 'Paid'], default: 'Unpaid' },
     totalAmount: { type: Number, required: true },
     advancePaid: { type: Number, default: 0 },
-    guestCount: { type: Number, required: true }
+    guestCount: { type: Number, required: true },
+    paymentMethod: { 
+      type: String, 
+      enum: ['Cash', 'Online'], 
+      required: true 
+    },
+    transactionId: { 
+      type: String, 
+      unique: true, 
+      sparse: true 
+  },
   }, { timestamps: true });
   
   export const BookingModel = model<IBooking>('Booking', bookingSchema);
