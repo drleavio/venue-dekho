@@ -18,14 +18,19 @@ export const createBooking = async (req: Request, res: Response) => {
             return res.status(404).json({ success: false, message: "Venue not found." });
         }
 
-        const requestedDate = new Date(date).getTime();
-        const isAvailable = venue.availabilityDates.some(d => new Date(d).getTime() === requestedDate);
+        const requestedDateStr = new Date(date).toDateString();
+        const isAvailable = venue.availabilityDates.some(d => 
+            new Date(d).toDateString() === requestedDateStr
+        );
+        
 
         if (!isAvailable) {
             return res.status(400).json({ success: false, message: "Venue is not available on this date." });
         }
 
-        const totalAmount =venue.pricing?.minFee || venue.pricing.baseRentalFee || (venue.pricing.foodPricing.vegPerPlate * guests);
+        const totalAmount = venue.pricing?.minFee ?? 
+                   venue.pricing?.baseRentalFee ?? 
+                   (venue.pricing.foodPricing.vegPerPlate * guests);
         
         //add payment gateway to receive the payment
         const paymentId=""

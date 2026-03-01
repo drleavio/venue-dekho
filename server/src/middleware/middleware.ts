@@ -9,7 +9,7 @@ export const middleware=async(req:any,res:any,next:any)=>{
         return res.status(203).json({success:false,message:"token not available"})
     }
     try {
-        const decoded=await jwt.verify(token,process.env.JWT_SECRET!) as any;
+        const decoded=jwt.verify(token,process.env.JWT_SECRET!) as any;
         req.user=decoded;
         next();
     } catch (error) {
