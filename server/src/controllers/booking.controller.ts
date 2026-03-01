@@ -6,7 +6,7 @@ import { BookingModel } from "../interfaces/booking-types.js";
 export const createBooking = async (req: Request, res: Response) => {
     try {
         const { id: venueId } = req.params;
-        const { date, guests, paymentMethod } = req.body; // Expecting these in body for a POST
+        const { date, guests, paymentMethod } = req.body;
         const userId = (req as any).user.id;
 
         if (!date || !guests || !paymentMethod) {
@@ -18,14 +18,22 @@ export const createBooking = async (req: Request, res: Response) => {
             return res.status(404).json({ success: false, message: "Venue not found." });
         }
 
-        const requestedDate = new Date(date).getTime();
-        const isAvailable = venue.availabilityDates.some(d => new Date(d).getTime() === requestedDate);
+        const requestedDateStr = new Date(date).toDateString();
+        const isAvailable = venue.availabilityDates.some(d => 
+            new Date(d).toDateString() === requestedDateStr
+        );
+        
 
         if (!isAvailable) {
             return res.status(400).json({ success: false, message: "Venue is not available on this date." });
         }
 
-        const totalAmount =venue.pricing?.minFee || venue.pricing.baseRentalFee || (venue.pricing.foodPricing.vegPerPlate * guests);
+        const totalAmount = venue.pricing?.minFee ?? 
+                   venue.pricing?.baseRentalFee ?? 
+                   (venue.pricing.foodPricing.vegPerPlate * guests);
+        
+        //add payment gateway to receive the payment
+        const paymentId=""
 
         const newBooking = await BookingModel.create({
             venueId: venue._id,
@@ -36,7 +44,8 @@ export const createBooking = async (req: Request, res: Response) => {
             totalAmount: totalAmount,
             paymentMethod: paymentMethod,
             paymentStatus: paymentMethod === 'Online' ? 'Paid' : 'Unpaid',
-            bookingStatus: 'Pending'
+            bookingStatus: paymentMethod==='Online'? 'Confirmed':'Pending',
+            transactionId:paymentMethod==='Online'?paymentId:''
         });
 
         await VenueModel.findByIdAndUpdate(venueId, {
@@ -60,8 +69,8 @@ export const createBooking = async (req: Request, res: Response) => {
             data: newBooking
         });
 
-    } catch (error) {
-        console.error("Booking Error:", error);
-        return res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
+      } catch (error) {
+          console.error("Booking Error:", error);
+          return res.status(500).json({ success: false, message: "Internal Server Error" });
+      }
 };
