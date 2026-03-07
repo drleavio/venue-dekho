@@ -1,25 +1,26 @@
 import type { Request, Response } from "express";
-import { VenueViewModel } from "../interfaces/analytics-types.js";
-import { VenueModel, venueZodSchema } from "../interfaces/venue-types.js";
+import { VenueViewModel } from "../models/track/trackerSchema.js";
+import { venueZodSchema } from "../interfaces/venue-types.js";
+import { VenueModel } from "../models/venues/venueSchema.js";
 
-export const ClientAnalysis={
-    getDashboard:async(req:Request,res:Response)=>{
+export const ClientAnalysis = {
+    getDashboard: async (req: Request, res: Response) => {
         try {
-            const venueId = (req as any).user?.venueId; 
+            const venueId = (req as any).user?.venueId;
 
             if (!venueId) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: "No venue associated with this account." 
+                return res.status(400).json({
+                    success: false,
+                    message: "No venue associated with this account."
                 });
             }
 
             const venueData = await VenueViewModel.findById(venueId);
 
             if (!venueData) {
-                return res.status(404).json({ 
-                    success: false, 
-                    message: "Venue details not found." 
+                return res.status(404).json({
+                    success: false,
+                    message: "Venue details not found."
                 });
             }
 
@@ -29,9 +30,9 @@ export const ClientAnalysis={
             });
         } catch (error) {
             console.error("Dashboard Error:", error);
-            return res.status(500).json({ 
-                success: false, 
-                message: "Internal Server Error" 
+            return res.status(500).json({
+                success: false,
+                message: "Internal Server Error"
             });
         }
     },
@@ -50,7 +51,7 @@ export const ClientAnalysis={
                 });
             }
 
-            const ownerId = (req as any).user?.id; 
+            const ownerId = (req as any).user?.id;
             const ownerName = (req as any).user?.name;
 
             if (!ownerId) {
@@ -60,7 +61,7 @@ export const ClientAnalysis={
             const newVenue = new VenueModel({
                 ...validation.data,
                 ownerId,
-                ownerName: ownerName || validation.data.ownerName 
+                ownerName: ownerName || validation.data.ownerName
             });
 
             const savedVenue = await newVenue.save();
@@ -73,7 +74,7 @@ export const ClientAnalysis={
 
         } catch (error: any) {
             console.error("Add Venue Error:", error);
-            
+
             if (error.code === 11000) {
                 return res.status(409).json({ success: false, message: "Venue already exists." });
             }
@@ -84,7 +85,7 @@ export const ClientAnalysis={
     updateVenue: async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
-            const userId = (req as any).user?.id; 
+            const userId = (req as any).user?.id;
 
             const validation = venueZodSchema.partial().safeParse(req.body);
 
@@ -106,9 +107,9 @@ export const ClientAnalysis={
             }
 
             if (venue.ownerId.toString() !== userId) {
-                return res.status(403).json({ 
-                    success: false, 
-                    message: "Unauthorized: You do not own this venue." 
+                return res.status(403).json({
+                    success: false,
+                    message: "Unauthorized: You do not own this venue."
                 });
             }
 

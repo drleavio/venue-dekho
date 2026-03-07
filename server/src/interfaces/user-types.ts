@@ -1,6 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
 import { z } from 'zod';
-
 
 export const UserSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 chars"),
@@ -8,8 +6,8 @@ export const UserSchema = z.object({
   email: z.string().email("Invalid email format"),
   age: z.number().int().positive().optional(),
   role: z.enum(["admin", "user", "guest"]),
-  provider:z.enum(["local", "google", "apple"]),
-  
+  provider: z.enum(["local", "google", "apple"]),
+
   // Strong Password Validation
   password: z.string()
     .min(8, "Password must be at least 8 characters long")
@@ -20,51 +18,4 @@ export const UserSchema = z.object({
     .optional()
 });
 
-
 export type User = z.infer<typeof UserSchema>;
-
-export interface IUserDocument extends User, Document {
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const userMongooseSchema = new Schema<IUserDocument>({
-  username: { 
-    type: String, 
-    required: true, 
-    minlength: 3 
-  },
-  name:{
-    type:String,
-    required:true
-  },
-  password:{
-    type: String, 
-    required: false, 
-  },
-  provider: {
-    type: String,
-    enum: ["local", "google", "apple"],
-    default: "local"
-  },
-  email: { 
-    type: String, 
-    required: true, 
-    unique: true, 
-    lowercase: true, 
-    trim: true 
-  },
-  age: { 
-    type: Number,
-    required:false
-  },
-  role: { 
-    type: String, 
-    enum: ["admin", "user", "guest"], 
-    default: "user" 
-  },
-}, { 
-  timestamps: true 
-});
-
-export const UserModel = model<IUserDocument>('User', userMongooseSchema);
